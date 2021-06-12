@@ -47,10 +47,7 @@ static void matrix_fill_random_mxn(size_t m, size_t n, int *A)
 }
 
 #ifdef FAST
-/**
- * Computes the dot product of two 4-dimensional vectors.
- */
-static int vector_dot_product_4x1(int *a0, int *b0)
+static inline int vector_dot_product_4x1(int *a0, int *b0)
 {
     /*
      * The dot product of two 4-dimensional vectors a = (a0, a1, a2, a3) and b = (b0, b1, b2, b3)
@@ -71,7 +68,7 @@ static int vector_dot_product_4x1(int *a0, int *b0)
     return _mm_cvtsi128_si32(sum);  // convert lower 32 bits to a 32-bit signed imteger
 }
 
-static void matrix_transpose_mxn(size_t m, size_t n, int *A)
+static inline void matrix_transpose_mxn(size_t m, size_t n, int *A)
 {
     for (size_t i = 0; i < m; i++) {
         for (size_t j = i + 1; j < n; j++) {
@@ -88,11 +85,19 @@ static void matrix_multiply_mxn(size_t a_m, size_t a_n, size_t b_n, int *C, int 
     matrix_transpose_mxn(a_n, b_n, B);  // to optimise cache usage when traversing B
     for (size_t i = 0; i < a_m; i++) {
         for (size_t j = 0; j < b_n; j++) {
-            // process the first (a_n / 4) chunks of 4 items of the row
-            for (size_t k = 0; k < a_n; k += 4) {
+            // process the row in 16-int chunks
+            for (size_t k = 0; k + 15 < a_n; k += 16) {
+                size_t offset = i * a_n + k;
+                C[i * b_n + j] += vector_dot_product_4x1(&A[offset], &B[offset]);
+                C[i * b_n + j] += vector_dot_product_4x1(&A[offset + 4], &B[offset + 4]);
+                C[i * b_n + j] += vector_dot_product_4x1(&A[offset + 8], &B[offset + 8]);
+                C[i * b_n + j] += vector_dot_product_4x1(&A[offset + 12], &B[offset + 12]);
+            }
+            // process the remainder (if any) in 4-int chunks
+            for (size_t k = a_n & -16; k + 3 < a_n; k += 4) {
                 C[i * b_n + j] += vector_dot_product_4x1(&A[i * a_n + k], &B[j * a_n + k]);
             }
-            // process the remainder of the row (if any)
+            // process the remainder (if any) in 1-int chunks
             for (size_t k = a_n & -4; k < a_n; k++) {
                 C[i * b_n + j] += A[i * a_n + k] * B[j * a_n + k];
             }
