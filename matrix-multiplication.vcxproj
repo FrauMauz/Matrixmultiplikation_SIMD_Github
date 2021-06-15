@@ -67,7 +67,7 @@
       <CompileAs>CompileAsC</CompileAs>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <PreprocessorDefinitions>NDEBUG;FAST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>
@@ -95,6 +95,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <PreprocessorDefinitions>NDEBUG;FAST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link />
   </ItemDefinitionGroup>

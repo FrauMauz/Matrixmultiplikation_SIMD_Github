@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef NDEBUG
 #include <stdio.h>
@@ -12,39 +13,72 @@
 #define DIM 4   // number of rows and columns of the matrices
 #define MAX 10  // only allow integers i with 0 <= i < 10 when debugging
 #else
-#define DIM 256
+#define DIM 1024
 #define MAX RAND_MAX
 #endif
 
-/*sizeof(A)=16*4=64 / sizeof(A[0])= 4 columns each 4 Byte = 16 */
-#define matrix_nrows(A) (sizeof(A) / sizeof(A[0]))
-/*sizeof(A[0])=first row 4 elements *4 Byte int size = 16 / sizeof(int) = 4 */
-#define matrix_ncols(A) (sizeof(A[0]) / sizeof(int))
+struct matrix {
+    size_t nrows;
+    size_t ncols;
+    int *values;
+};
+
+enum init_strategy {
+    UNSET,
+    RANDOM,
+    ZERO,
+};
 
 /**
- * Fills all entries of matrix A with values between 0 and MAX (exclusive).
+ * Allocates an appropriate amount of memory and initializes the structure.
  */
-#define matrix_fill_random(A) matrix_fill_random_mxn(matrix_nrows(A), matrix_ncols(A), &A[0][0])
+static struct matrix matrix_create(size_t m, size_t n)
+{
+#ifdef FAST
+    int *values = _aligned_malloc(m * n * sizeof(int), _Alignof(__m128i));
+#else
+    int *values = malloc(m * n * sizeof(int));
+#endif
+    return (struct matrix) { .nrows = m, .ncols = n, .values = values };
+}
+
+/**
+ * Frees up resources to the system.
+ */
+static void matrix_destroy(struct matrix M)
+{
+#ifdef FAST
+    _aligned_free(M.values);
+#else
+    free(M.values);
+#endif
+}
+
+/**
+ * Sets all entries to random values.
+ */
+static inline void matrix_fill_random(struct matrix M)
+{
+    for (size_t i = 0; i < M.nrows * M.ncols; i++) {
+        M.values[i] = rand() % MAX;
+    }
+}
+
+/**
+ * Sets all entries to zero.
+ */
+static inline void matrix_fill_zero(struct matrix M)
+{
+    memset(M.values, 0, M.nrows * M.ncols * sizeof(int));
+}
 
 /**
  * Multiplies matrices A and B and stores the result in matrix C.
  *
- * All matrices are expected to be properly sized, initialized, and aligned to 128 boundaries.
+ * All matrices are expected to be properly sized, initialized, and aligned to 128-bit boundaries.
  * That is, ncols(A) = nrows(B) and nrows(C) = nrows(A) and ncols(C) = ncols(B) and entries in C are zero.
  */
-#define matrix_multiply(C, A, B) matrix_multiply_mxn(matrix_nrows(A), matrix_ncols(A), matrix_ncols(B), &C[0][0], &A[0][0], &B[0][0])
-
-/**
- * Prints matrix A to stdout if not in release mode.
- */
-#define matrix_print(A) matrix_print_mxn(matrix_nrows(A), matrix_ncols(A), &A[0][0])
-
-static void matrix_fill_random_mxn(size_t m, size_t n, int *A)
-{
-    for (size_t i = 0; i < m * n; i++) {
-        A[i] = rand() % MAX;
-    }
-}
+#define matrix_multiply(C, A, B) matrix_multiply_mxn(A.nrows, A.ncols, B.ncols, C.values, A.values, B.values)
 
 #ifdef FAST
 static inline int vector_dot_product_4x1(int *a0, int *b0)
@@ -117,14 +151,15 @@ static void matrix_multiply_mxn(size_t a_m, size_t a_n, size_t b_n, int *C, int 
 }
 #endif
 
-#ifdef NDEBUG
-#define matrix_print_mxn(m, n, A) ((void)0)   // essentially a noop
-#else
-static void matrix_print_mxn(size_t m, size_t n, int *A)
+#ifndef NDEBUG
+/**
+ * Prints matrix M to stdout.
+ */
+static void matrix_print(struct matrix M)
 {
-    for (size_t i = 0; i < m * n; i += n) {
-        for (size_t j = 0; j < n; j++) {
-            printf("%d ", A[i + j]);
+    for (size_t i = 0; i < M.nrows * M.ncols; i += M.ncols) {
+        for (size_t j = 0; j < M.ncols; j++) {
+            printf("%d ", M.values[i + j]);
         }
         printf("\r\n");
     }
@@ -133,26 +168,25 @@ static void matrix_print_mxn(size_t m, size_t n, int *A)
 
 int main(int argc, char *argv[])
 {
-    /*
-     * For sizeof(a) = sizeof(b) = sizeof(c) = DIM^2 * sizeof(int) and DIM = 256 = 2^8, the required space (in bytes)
-     * amounts to 3 * (2^8)^2 * 4 = 3 * 2^18 = 786432, i.e. 0.75 MB, which is less than Windows' default stack size of 1 MB.
-     * Since we only use a handful of additional integer variables, allocating the matrices on the stack is feasible.
-     *
-     * For matrices presumably exceeding the stack size, malloc memory on the heap instead!
-     */
-
-    _Alignas(__m128i) int a[DIM][DIM];
-    _Alignas(__m128i) int b[DIM][DIM];
-    _Alignas(__m128i) int c[DIM][DIM] = { 0 };
+    struct matrix a = matrix_create(DIM, DIM);
+    struct matrix b = matrix_create(DIM, DIM);
+    struct matrix c = matrix_create(DIM, DIM);
 
     matrix_fill_random(a);
-    matrix_print(a);
-
     matrix_fill_random(b);
-    matrix_print(b);
+    matrix_fill_zero(c);
 
     matrix_multiply(c, a, b);
+
+#ifndef NDEBUG
+    matrix_print(a);
+    matrix_print(b);
     matrix_print(c);
+#endif
+
+    matrix_destroy(a);
+    matrix_destroy(b);
+    matrix_destroy(c);
 
     return EXIT_SUCCESS;
 }
