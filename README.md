@@ -12,8 +12,9 @@ Zudem erlauben folgende paarweise kombinierbare Optionen die Beeinflussung des V
 * `/DNDEBUG`: Definition der Preprocessor-Variable `NDEBUG`, um ausschliesslich zum Debuggen benoetigten Code zu entfernen
 * `/DFAST`: Definition der Preprocessor-Variable `FAST`, um die Matrixmultiplikation mit SIMD-Operationen durchzufuehren
 
-So bietet sich beispielsweise folgender Befehl an, um ein zur Vermessung geeignetes Programm zu erzeugen: 
+So bietet es sich beispielsweise an, die durch die folgenden Befehle erzeugten Programme zu vermessen und zu vergleichen: 
 
 ```shell
+cl /std:c17 /DNDEBUG main.c
 cl /std:c17 /DNDEBUG /DFAST main.c
 ```
