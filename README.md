@@ -1,14 +1,5 @@
 # Matrixmultiplikation mit Streaming SIMD Extensions
 
-Zusaetzlich kann folgende (vor dem Dateinamen zu platzierende) Option verwendet werden:
-
-* `/FAs`: Ausgabe des generierten Assembler-Codes in die Datei `main.asm`
-
-Zudem erlauben folgende paarweise kombinierbare Optionen die Beeinflussung des Verhaltens des erzeugten Programms:
-
-* `/DNDEBUG`: Definition der Preprocessor-Variable `NDEBUG`, um ausschliesslich zum Debuggen benoetigten Code zu entfernen
-* `/DFAST`: Definition der Preprocessor-Variable `FAST`, um die Matrixmultiplikation mit SIMD-Operationen durchzufuehren
-
 ## Build
 Zunächst alle Projektkonfigurationen in VS erstellen mit STRG + UMSCHALT + B
 (- DEBUG)
