@@ -1,8 +1,5 @@
 # Matrixmultiplikation mit Streaming SIMD Extensions
 
-In der einfachsten Form wird das Projekt mit `cl /std:c17 main.c` kompiliert.
-Die ausfuehrbare Datei heisst dann `main.exe`.
-
 Zusaetzlich kann folgende (vor dem Dateinamen zu platzierende) Option verwendet werden:
 
 * `/FAs`: Ausgabe des generierten Assembler-Codes in die Datei `main.asm`
@@ -12,40 +9,38 @@ Zudem erlauben folgende paarweise kombinierbare Optionen die Beeinflussung des V
 * `/DNDEBUG`: Definition der Preprocessor-Variable `NDEBUG`, um ausschliesslich zum Debuggen benoetigten Code zu entfernen
 * `/DFAST`: Definition der Preprocessor-Variable `FAST`, um die Matrixmultiplikation mit SIMD-Operationen durchzufuehren
 
-So bietet es sich beispielsweise an, die durch die folgenden Befehle erzeugten Programme zu vermessen und zu vergleichen: 
-
-```shell
-cl /std:c17 /DNDEBUG test.c
-cl /std:c17 /DNDEBUG /DFAST test.c
-```
-
 ## Build
-Zunächst alle Projektmappen in VS erstellen mit STRG + UMSCHALT + B
-- DEBUG
-- DEBUG (FAST)
+Zunächst alle Projektkonfigurationen in VS erstellen mit STRG + UMSCHALT + B
+(- DEBUG)
+(- DEBUG (FAST))
+
 - RELEASE
 - RELEASE (FAST)
+
+Im DEBUG sind die Ziffern der Zufallsmatrizen auf 0-9 beschränkt. Im Release auf das aximum von rand() ca. 32.000.
 
 Dann sind die jeweiligen Ordner mit den .exe Dateien (Ausführbare Dateien) erzeugt im Ordner x64 (oder jeweils x84 je nachdem was bei der Erstellung augewählt wurde)
 
 ## Ausführen des Programms über Kommandozeile:
 
-2 Random Matrizen (mit ziffern von 0-9) werden erzeugt und multipliziert. Hier wird die load-Funktion nicht genutzt. :
+2 Random Matrizen (mit ziffern von 0-9) werden erzeugt und multipliziert. Hier wird die load-Funktion nicht genutzt:
 ```
 \x64\Debug>Matrixmultiplikation_SIMD_Github.exe
 ```
-
 
 Eine (vorher erstellte) Matrix wird als Parameter übergeben und mit sich selbst multipliziert:
 ```
 \x64\Debug>Matrixmultiplikation_SIMD_Github.exe matrix1.txt
 ```
 
-
 2 (vorher erstellte) Matrizen wird als Parameter übergeben und miteinander multipliziert:
 ```
 \x64\Debug>Matrixmultiplikation_SIMD_Github.exe matrix1.txt matrix2.txt
 ```
 
-Die .txt Files sind noch nicht erzeugt, können nach belieben erzeugt werden, um dann mit der load-Funktion eingeladen zu werden.
+## Ausführen des Programms über VS:
+
+Unter Configuration Properties - Debugging können Command Arguments übergeben werden. Durch das Setzen passiert das Gleiche wie zuvor über die Kommandozeile. Es werden speziell definierte Matrizen gewählt, statt Random Matrizen.
+
+Die Matrizen in Form von .txt Files sind noch nicht erzeugt, können nach belieben erzeugt werden, um dann mit der load-Funktion eingeladen zu werden.
 Die Funktion multiply() unterscheidet sich nicht, mit oder ohne Parametern.
