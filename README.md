@@ -15,8 +15,8 @@ Zudem erlauben folgende paarweise kombinierbare Optionen die Beeinflussung des V
 So bietet es sich beispielsweise an, die durch die folgenden Befehle erzeugten Programme zu vermessen und zu vergleichen: 
 
 ```shell
-cl /std:c17 /DNDEBUG main.c
-cl /std:c17 /DNDEBUG /DFAST main.c
+cl /std:c17 /DNDEBUG test.c
+cl /std:c17 /DNDEBUG /DFAST test.c
 ```
 
 ## Build
@@ -32,19 +32,19 @@ Dann sind die jeweiligen Ordner mit den .exe Dateien (Ausführbare Dateien) erze
 
 2 Random Matrizen (mit ziffern von 0-9) werden erzeugt und multipliziert. Hier wird die load-Funktion nicht genutzt. :
 ```
-\x64\Debug>Matrixmultiplikation_SIMD_GITHUB.exe
+\x64\Debug>Matrixmultiplikation_SIMD_Github.exe
 ```
 
 
 Eine (vorher erstellte) Matrix wird als Parameter übergeben und mit sich selbst multipliziert:
 ```
-\x64\Debug>Matrixmultiplikation_SIMD_GITHUB.exe matrix1.txt
+\x64\Debug>Matrixmultiplikation_SIMD_Github.exe matrix1.txt
 ```
 
 
 2 (vorher erstellte) Matrizen wird als Parameter übergeben und miteinander multipliziert:
 ```
-\x64\Debug>Matrixmultiplikation_SIMD_GITHUB.exe matrix1.txt matrix2.txt
+\x64\Debug>Matrixmultiplikation_SIMD_Github.exe matrix1.txt matrix2.txt
 ```
 
 Die .txt Files sind noch nicht erzeugt, können nach belieben erzeugt werden, um dann mit der load-Funktion eingeladen zu werden.
