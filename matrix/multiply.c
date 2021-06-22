@@ -3,7 +3,7 @@
 
 #include <green/matrix.h>
 
-#include "memory.h"
+#include "malloc.h"
 
 #ifdef FAST
 #include <immintrin.h>
@@ -84,15 +84,15 @@ matrix_t matrix_multiply(matrix_t a, matrix_t b)
 #else
 matrix_t matrix_multiply(matrix_t a, matrix_t b)
 {
-    size_t a_m = a.nrows;
-    size_t a_n = a.ncols;
-    size_t b_n = b.ncols;
+    size_t a_m = a.nrows;  //m cols
+    size_t a_n = a.ncols;  //n rows
+    size_t b_n = b.ncols;  //n rows
 
     int *A = a.values;
     int *B = b.values;
     int *C = matrix_malloc(a_m * b_n * sizeof(int));
 
-    memset(C, 0, a_m * b_n * sizeof(int));
+    memset(C, 0, a_m * b_n * sizeof(int));//set memory of C 0 for the size of allocated memory
 
     for (size_t i = 0; i < a_m; i++) {
         for (size_t j = 0; j < b_n; j++) {
