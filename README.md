@@ -48,4 +48,4 @@ Eine (vorher erstellte) Matrix wird als Parameter übergeben und mit sich selbst
 ```
 
 Die .txt Files sind noch nicht erzeugt, können nach belieben erzeugt werden, um dann mit der load-Funktion eingeladen zu werden.
-Die Dunktion multiply() unterscheidet sich nicht, mit oder ohne Parametern.
+Die Funktion multiply() unterscheidet sich nicht, mit oder ohne Parametern.
