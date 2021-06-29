@@ -4,9 +4,9 @@
 #include <stdlib.h>
 
 typedef struct {
-    size_t nrows; //unsigned 64bit integer
-    size_t ncols; //unsigned 64bit integer
-    int *values; //pointer 8Byte 64bit
+    size_t nrows;
+    size_t ncols;
+    int *values;
 } matrix_t;
 
 /* Allocates an appropriate amount of memory and initializes the structure with random values. */
