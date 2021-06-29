@@ -5,7 +5,7 @@ Zunächst alle Projektkonfigurationen in VS erstellen mit STRG + UMSCHALT + B
 
 - DEBUG
 - DEBUG (FAST)<br>
-(DEBUG nicht wichtig für Messungen, da Ergebnisse durch print verfälscht)<br>
+(DEBUG nicht wichtig für Messungen, da Ergebnisse durch print verfälscht, aber für Debugging von registern essentiell)<br>
 
 - RELEASE
 - RELEASE (FAST)
