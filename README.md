@@ -4,8 +4,8 @@
 Zunächst alle Projektkonfigurationen in VS erstellen mit STRG + UMSCHALT + B
 
 - DEBUG
-- DEBUG (FAST)
-(DEBUG nicht wichtig für Messungen, da Ergebnisse durch print verfälscht)
+- DEBUG (FAST)<br>
+(DEBUG nicht wichtig für Messungen, da Ergebnisse durch print verfälscht)<br>
 
 - RELEASE
 - RELEASE (FAST)
@@ -37,6 +37,7 @@ Eine (vorher erstellte) Matrix wird als Parameter übergeben und mit sich selbst
 
 ## Ausführen des Programms über VS:
 
-Unter Configuration Properties - Debugging können Command Arguments übergeben werden. Durch das Setzen passiert das Gleiche wie zuvor über die Kommandozeile. Es werden speziell definierte Matrizen gewählt, statt Random Matrizen.
+Unter Configuration Properties - Debugging können Command Arguments übergeben werden. Durch das Setzen passiert das Gleiche wie zuvor über die Kommandozeile. 
+Es werden speziell definierte Matrizen gewählt, statt Random Matrizen.
 
 
