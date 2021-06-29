@@ -21,12 +21,19 @@ static inline int vector_dot_product_4x1(int *a0, int *b0)
      *   (4) convert the lower 32 bits of the SIMD register into a signed integer
      */
 
-    __m128i a = _mm_load_si128((__m128i *)a0);  // load four 32-bit signed integers
+    //_mm_load_si128((__m128i *) : Load 128-bits of integer data from memory into dst. mem_addr must be aligned on a 16-byte boundary or a general-protection exception may be generated
+    __m128i a = _mm_load_si128((__m128i *)a0);  
     __m128i b = _mm_load_si128((__m128i *)b0);
+
+    //__m128i _mm_mullo_epi32 (__m128i a, __m128i b) : Multiply the packed 32-bit integers in a and b, producing intermediate 64-bit integers, and store the low 32 bits of the intermediate integers in dst
     __m128i products = _mm_mullo_epi32(a, b);   // pairwise multiplication of 32-bit signed integers
+
+    //__m128i _mm_hadd_epi32 (__m128i a, __m128i b) : Horizontally add adjacent pairs of 32-bit integers in a and b, and pack the signed 32-bit results in dst
     __m128i sum = _mm_hadd_epi32(products, products);  // horizontal addition
     sum = _mm_hadd_epi32(sum, sum); // creates 4 times all sums multiplied
-    return _mm_cvtsi128_si32(sum);  // convert lower 32 bits to a 32-bit signed imteger
+
+    //_mm_cvtsi128_si32 (__m128i a) Copy the lower 32-bit integer in a to dst
+    return _mm_cvtsi128_si32(sum);  // convert lower 32 bits to a 32-bit signed integer
 }
 
 static inline void matrix_transpose(size_t m, size_t n, int *A)
@@ -61,6 +68,7 @@ matrix_t matrix_multiply(matrix_t a, matrix_t b)
             // process the row in 16-int chunks
             for (size_t k = 0; k + 15 < a_n; k += 16) {
                 size_t offset = i * a_n + k;
+                //unroll
                 C[i * b_n + j] += vector_dot_product_4x1(&A[offset], &B[offset]);
                 C[i * b_n + j] += vector_dot_product_4x1(&A[offset + 4], &B[offset + 4]);
                 C[i * b_n + j] += vector_dot_product_4x1(&A[offset + 8], &B[offset + 8]);
@@ -84,15 +92,15 @@ matrix_t matrix_multiply(matrix_t a, matrix_t b)
 #else
 matrix_t matrix_multiply(matrix_t a, matrix_t b)
 {
-    size_t a_m = a.nrows;  //m cols
-    size_t a_n = a.ncols;  //n rows
-    size_t b_n = b.ncols;  //n rows
+    size_t a_m = a.nrows;
+    size_t a_n = a.ncols;
+    size_t b_n = b.ncols;
 
     int *A = a.values;
     int *B = b.values;
     int *C = matrix_malloc(a_m * b_n * sizeof(int));
 
-    memset(C, 0, a_m * b_n * sizeof(int));//set memory of C 0 for the size of allocated memory
+    memset(C, 0, a_m * b_n * sizeof(int));
 
     for (size_t i = 0; i < a_m; i++) {
         for (size_t j = 0; j < b_n; j++) {
@@ -105,3 +113,67 @@ matrix_t matrix_multiply(matrix_t a, matrix_t b)
     return (matrix_t) { .nrows = a_m, .ncols = b_n, .values = C };
 }
 #endif // FAST
+
+
+
+/*
+* TESTED on Intel's CPU i5 11.Gen Tigerlake, 2,4 GHz
+* 22.06.2021, 19 C°
+*
+* TEST FAST n= 1024, RELEASE x64
+*
+Profiled Entity / Type                   Power (mW)       Energy (mJ)
+                                         11445.789        17713.501
+
+Function / Call Stack                    CPU Time         Clockticks       Instructions Retired     CPI Rate
+[Loop at line 63 in matrix_multiply]     0.453s           1,874,400,000    6,727,200,000            0.279
+
+
+* TEST NDEBUG n= 1024, RELEASE x64
+Profiled Entity / Type                   Power (mW)       Energy (mJ)
+                                         10820.214        55503.845
+
+Function / Call Stack                    CPU Time         Clockticks        Instructions Retired    CPI Rate
+[Loop at line 100 in matrix_multiply]    4.962s           20,613,600,000    30,062,400,000          0.686    28.3%
+
+*/
+
+
+
+
+
+/* 
+    CPU                Intel(R) Processor code named Kabylake ULX
+    Frequency:         1,8 GHz
+    Local CPU count:   8
+
+    22.06.2021, 22 C°
+
+    -------------------------------------
+    Sequentielle Implementierung 
+    -------------------------------------
+    
+    TESTEN mit x64 Release
+
+Function / Call Stack	                    CPU Time	Clockticks	    Instructions Retired	CPI Rate	Average CPU Frequency	
+[Loop at line 99 in matrix_multiply]	    17.192s	    50,550,400,000	30,155,200,000	        1.676	    2.9 GHz 	            
+[Loop at line 20 in matrix_create_random]	0.014s	    52,800,000	    180,800,000	            0.292	    3.7 GHz 	           
+[Loop at line 98 in matrix_multiply]	    0.004s	    6,400,000	    4,800,000	            1.333	    1.4 GHz 	     
+
+    --------------------------------------
+    Intrinsics Implementierung mit Unroll
+    --------------------------------------
+
+    TESTEN mit x64 Release
+
+Function / Call Stack	                    CPU Time	Clockticks	    Instructions Retired	CPI Rate	Average CPU Frequency	
+vector_dot_product_4x1	                    1.669s	    5,624,000,000	9,488,000,000	        0.593	    3.4 GHz 	        
+[Loop at line 62 in matrix_multiply]	    0.526s	    1,835,200,000	3,155,200,000	        0.582	    3.5 GHz 	           
+[Loop at line 20 in matrix_create_random]	0.015s	    57,600,000	    195,200,000	            0.295	    3.8 GHz 	        	
+[Loop at line 35 in matrix_transpose]	    0.008s	    27,200,000	    16,000,000	            1.700	    3.4 GHz 	        	
+[Loop at line 60 in matrix_multiply]	    0.003s	    3,200,000	    8,000,000	            0.400	    1.2 GHz 	        	    
+[Loop at line 70 in matrix_multiply]	    0.001s	    0	            3,200,000	            0.000	    0.0 MHz 	        	    
+[Loop at line 74 in matrix_multiply]	    0s	        0	            0	                    0.000	    0.0 MHz 	        
+
+
+*/
