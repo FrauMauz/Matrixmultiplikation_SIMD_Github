@@ -161,10 +161,10 @@ Function / Call Stack	                    CPU Time	Clockticks	    Instructions R
 [Loop at line 98 in matrix_multiply]	    0.004s	    6,400,000	    4,800,000	            1.333	    1.4 GHz 	     
 
     --------------------------------------
-    Intrinsics Implementierung mit Unroll
+    SIMD Implementierung mit Unroll
     --------------------------------------
 
-    TESTEN mit x64 Release
+    TESTEN mit x64 Release FAST
 
 Function / Call Stack	                    CPU Time	Clockticks	    Instructions Retired	CPI Rate	Average CPU Frequency	
 vector_dot_product_4x1	                    1.669s	    5,624,000,000	9,488,000,000	        0.593	    3.4 GHz 	        
@@ -176,4 +176,16 @@ vector_dot_product_4x1	                    1.669s	    5,624,000,000	9,488,000,00
 [Loop at line 74 in matrix_multiply]	    0s	        0	            0	                    0.000	    0.0 MHz 	        
 
 
+    --------------------------------------
+    SIMD Implementierung ohne Unroll
+    --------------------------------------
+
+    TESTEN mit x64 Release FAST
+
+    Function / Call Stack	                    CPU Time	Clockticks	    Instructions Retired	CPI Rate	Average CPU Frequency
+    vector_dot_product_4x1	                    1.689s	    5,720,000,000	10,185,600,000	        0.562       3.4 GHz 	
+    [Loop at line 87 in matrix_multiply]	    0.736s	    2,505,600,000	4,870,400,000	        0.514	    3.4 GHz 	
+    [Loop at line 19 in matrix_create_random]	0.018s	    36,800,000	    161,600,000	            0.228	    2.1 GHz 	
+    [Loop at line 42 in matrix_transpose]	    0.006s	    22,400,000	    14,400,000	            1.556	    3.6 GHz 	
+    [Loop at line 67 in matrix_multiply]	    0.001s	    3,200,000	    4,800,000	            0.667	    3.6 GHz 	
 */
